@@ -20,9 +20,19 @@ def login_required(f):
             return redirect(url_for("login"))
     return wrap
 
+def renter_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if db.findOne("users",{"username":session["id"]})["user"] == "renter":
+            return f(*args,**kwargs)
+        else:
+            flash("You are not a renter.")
+            return redirect("home")
+    return wrap
+
 @app.route("/",methods=["GET"])
 @login_required
-def home():
+def home():  # general homepage
     return render_template("home.html")
 
 @app.route("/welcome",methods=["GET"])
@@ -75,12 +85,22 @@ def logout():
         flash("you are not logged in")
     return redirect(url_for("welcome"))
 
-# @app.route("/becomeRenter",methods=["GET"])
-# @login_required
-# def becomeRenter():
-#     error = None
-#     db.update("users",)
+@app.route("/becomeRenter",methods=["GET"])
+@login_required
+def becomeRenter():
+    if db.findOne("users",{"username":session["id"]})["user"] == "renter":
+        flash("you are already a renter!")
+        return redirect(url_for("home"))
+    db.update("users",{"username":session["id"]}, {'$set':{"user":"renter"}})
+    flash("you are now a renter!")
+    return redirect(url_for("home"))
     
+@app.route("/renterHome",methods=["GET"])
+@login_required
+@renter_required
+def renterHome():
+    return render_template("renterHome.html")
+
 @app.route("/addNewProperty",methods=["POST"])
 def addNewProperty():
     document = {
@@ -91,9 +111,14 @@ def addNewProperty():
     db.insert("properties", document)
     return Response("Property successfully added", status=200, content_type="text/html")
 
+@app.route("/updateProperty",methods=["GET"])
+def updateProperty():
+    db.update("properties",{"name":"test"}, {'$set':{"price":"something"}})
+    return Response("successfully changed database", status=200, content_type="text/html")
+
 @app.route("/properties", methods=["GET"])
 def getProperties():
-    properties = db.findMany("properties", {})
+    properties = db.findMany("properties",{})
     return jsonify(properties)
 
 if __name__ == "__main__":

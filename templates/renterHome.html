@@ -6,14 +6,13 @@
     </head>
     <body>
         <div class="container">
-            <h1> Airbnblite Homepage </h1>
+            <h1> Renter Homepage </h1>
             <br>
             {% for message in get_flashed_messages() %}
             {{ message }}
             {% endfor %}
+            <p>Click <a href="/">here</a> to go home.</p>
             <p>Click <a href="logout">here</a> to logout.</p>
-            <p>Click <a href="/renterHome">here</a> to go to the renter page.</p>
-            <p>Click <a href="/becomeRenter">here</a> to become a renter.</p>
         </div>
     </body>
 </html>
