@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>signup page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="container">
+      <h1> Signup </h1>
+      <br>
+      <form action="" method="post">
+          {% for message in get_flashed_messages() %}
+          {{ message }}
+          {% endfor %}
+        <input type="text" placeholder="Email" name="email" value="{{
+          request.form.email }}">
+          <input type="text" placeholder="Username" name="username" value="{{
+              request.form.username }}">
+         <input type="password" placeholder="Password" name="password" value="{{
+          request.form.password }}">
+        <input class="btn btn-default" type="submit" value="Signup">
+      </form>
+      <p>Click <a href="/login">here</a> to login.</p>
+      {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+    </div>
+  </body>
+</html>

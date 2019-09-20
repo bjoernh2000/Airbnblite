@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title> Welcome </title>
+    <title> Airbnblite </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="statif/bootstrap.min.css" rel="stylesheet" media="screen">
   </head>
   <body>
     <div class="container">
-      <h1>Welcome to Flask!</h2>
+      <h1>Welcome to AirbnbLite!</h2>
       <br>
+      {% for message in get_flashed_messages() %}
+            {{ message }}
+            {% endfor %}
       <p>Click <a href="/">here</a> to go home.</p>
+      <p>Click <a href="/login">here</a> to login.</p>
     </div>
   </body>
 </html>
