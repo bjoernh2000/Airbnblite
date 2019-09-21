@@ -3,7 +3,6 @@ from flask_pymongo import pymongo
 from database import DatabaseConnection
 from password import encrypt, is_password
 from functools import wraps
-from UserService import UserService
 import datetime
 
 app = Flask(__name__)
