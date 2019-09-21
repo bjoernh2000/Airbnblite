@@ -26,7 +26,7 @@ def renter_required(f):
             return f(*args,**kwargs)
         else:
             flash("You are not a renter.")
-            return redirect("home")
+            return redirect("/")
     return wrap
 
 @app.route("/",methods=["GET"])
@@ -41,7 +41,6 @@ def welcome():
 @app.route("/signup",methods=["GET", "POST"])
 def signup():
     error = None
-    users = db.findMany("users", {})
     if request.method == "POST":
         if db.findOne("users", {"username":request.form["username"]}) or db.findOne("users", {"email":request.form["email"]}):
             error = "Email/Username already exists please choose another"
@@ -60,7 +59,6 @@ def signup():
 @app.route('/login', methods=["GET", "POST"])
 def login():
     error = None
-    users = db.findMany("users", {})
     if request.method == "POST":
         if db.findOne("users", {"email":request.form["email"]}) and db.findOne("users", {"password":encrypt(request.form["password"])}):
             session["logged_in"] = True
@@ -100,15 +98,19 @@ def becomeRenter():
 def renterHome():
     return render_template("renterHome.html")
 
-@app.route("/addNewProperty",methods=["POST"])
+@app.route("/addNewProperty",methods=["GET","POST"])
 def addNewProperty():
-    document = {
-        "name": request.form["name"],
+    if request.method == "POST":
+        document = {
+        "name": session["id"],
         "propertyType": request.form["type"],
-        "price": request.form["price"]
+        "price": request.form["price"],
+        "address": request.form["address"]
     }
-    db.insert("properties", document)
-    return Response("Property successfully added", status=200, content_type="text/html")
+        db.insert("properties", document)
+        flash("Property successfully added")
+        return redirect(url_for("renterHome"))
+    return render_template("addProperties.html")
 
 @app.route("/updateProperty",methods=["GET"])
 def updateProperty():

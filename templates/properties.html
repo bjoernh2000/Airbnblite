@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>Properties</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+    </head>
+    <body>
+        <h1>Available properties</h1>
+        <table style="width:100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+        <!-- <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Address</th>
+            </tr>
+        </tfoot> -->
+        </table>
+        <script>
+            $(document).ready(function() {
+                $('#example').DataTable( {
+                    "ajax": {
+                        
+                        "url": "/index", 
+                        "dataType": "json",
+                        
+                    },
+                    "columns": [
+                        { "properties": "name" },
+                        { "properties": "propertyType" },
+                        { "properties": "price" },
+                        { "properties": "address" }
+                    ]
+                } );
+            } );
+            </script>
+    </body>
+    </html>
