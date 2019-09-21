@@ -1,0 +1,21 @@
+<html>
+        <head>
+            <title> Your account </title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+        </head>
+        <body>
+            <div class="container">
+                <h1> Your account </h1>
+                <br>
+                {% for message in get_flashed_messages() %}
+                {{ message }}
+                {% endfor %}
+                <p>Click <a href="/logout">here</a> to logout.</p>
+                <p>Click <a href="/">here</a> to go home.</p>
+                <p>Click <a href="/becomeRenter">here</a> to become a renter.</p>
+                <p>Click <a href="/rentedProperties">here</a> to view your rented properties.</p>
+                <p>Click <a href="/ownedProperties">here</a> to view owned properties.</p>
+            </div>
+        </body>
+    </html>

@@ -4,13 +4,12 @@ from database import DatabaseConnection
 from password import encrypt, is_password
 from functools import wraps
 from json2html import *
-import datetime
 
 app = Flask(__name__)
 db = DatabaseConnection()
-app.secret_key = "this is a super secret key"
+app.secret_key = "this is a super secret key"  # session key, I should make this a randomized string
 
-def login_required(f):
+def login_required(f):  # function meaning login is required to access the webpage
     @wraps(f)
     def wrap(*args,**kwargs):
         if "logged_in" in session:
@@ -20,7 +19,7 @@ def login_required(f):
             return redirect(url_for("login"))
     return wrap
 
-def renter_required(f):
+def renter_required(f):  # function meaning a renter account is required to access webpage
     @wraps(f)
     def wrap(*args, **kwargs):
         if db.findOne("users",{"username":session["id"]})["user"] == "renter":
@@ -36,11 +35,11 @@ def home():  # general homepage
     return render_template("home.html")
 
 @app.route("/welcome",methods=["GET"])
-def welcome():
+def welcome():  # site for non-users
     return render_template("welcome.html")
 
 @app.route("/signup",methods=["GET", "POST"])
-def signup():
+def signup():  # signup
     error = None
     if request.method == "POST":
         if db.findOne("users", {"username":request.form["username"]}) or db.findOne("users", {"email":request.form["email"]}):
@@ -58,7 +57,7 @@ def signup():
     return render_template("signup.html", error=error)
 
 @app.route('/login', methods=["GET", "POST"])
-def login():
+def login():  # login
     error = None
     if request.method == "POST":
         if db.findOne("users", {"email":request.form["email"]}) and db.findOne("users", {"password":encrypt(request.form["password"])}):
@@ -74,7 +73,7 @@ def login():
     return render_template("login.html", error=error)
 
 @app.route('/logout', methods=["GET"])
-def logout():
+def logout():  # logout
     if "logged_in" in session:
         session.pop("logged_in", None)
         session.pop("id", None)
@@ -85,7 +84,7 @@ def logout():
 
 @app.route("/becomeRenter",methods=["GET"])
 @login_required
-def becomeRenter():
+def becomeRenter():  # become a renter
     if db.findOne("users",{"username":session["id"]})["user"] == "renter":
         flash("you are already a renter!")
         return redirect(url_for("home"))
@@ -96,11 +95,13 @@ def becomeRenter():
 @app.route("/renterHome",methods=["GET"])
 @login_required
 @renter_required
-def renterHome():
+def renterHome():  # homepage for renters
     return render_template("renterHome.html")
 
 @app.route("/addNewProperty",methods=["GET","POST"])
-def addNewProperty():
+@login_required
+@renter_required
+def addNewProperty():  # add a property
     if request.method == "POST":
         document = {
         "owner": session["id"],
@@ -115,13 +116,14 @@ def addNewProperty():
     return render_template("addProperties.html")
 
 @app.route("/properties", methods=["GET"])
-def properties():
+@login_required
+def properties():  # all properties that are not rented
     properties = db.findMany("properties",{"rentedBy":"None"})
-    return json2html.convert(json=properties,table_attributes={"style":"width:100%"}) 
-    # return render_template("properties.html",data=properties)
+    return json2html.convert(json=properties,table_attributes={"style":"width:100%"})
 
 @app.route("/getProperty", methods=["GET","POST"])
-def getProperty():
+@login_required
+def getProperty():  # rent a property
     if request.method =="POST":
         if db.findOne("properties",{"name":request.form["name"]})["rentedBy"] == "None":
             db.update("properties",{"name":request.form["name"]}, {'$set':{"rentedBy":session["id"]}})
@@ -131,6 +133,33 @@ def getProperty():
             flash("This property is already rented")
             return redirect(url_for("home"))
     return render_template("getProperty.html")
+
+@app.route("/account", methods=["GET"])
+@login_required
+def account():  # your account
+    return render_template("account.html")
+
+@app.route("/rentedProperties")
+@login_required
+def rentedProperties():  # your rented properties
+    if db.findOne("properties",{"rentedBy":session["id"]}):
+        properties = db.findMany("properties",{"rentedBy":session["id"]})
+        return json2html.convert(json=properties,table_attributes={"style":"width:100%"})
+    else:
+        flash("You haven't rented any properties")
+        return redirect(url_for("account"))
+
+@app.route("/ownedProperties")
+@login_required
+@renter_required
+def ownedProperties():  # your owned properties
+    if db.findOne("properties",{"owner":session["id"]}):
+        properties = db.findMany("properties",{"owner":session["id"]})
+        return json2html.convert(json=properties,table_attributes={"style":"width:100%"})
+    else:
+        flash("You don't own any properties")
+        return redirect(url_for("account"))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=4000,debug=True)
