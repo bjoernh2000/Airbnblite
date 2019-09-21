@@ -7,14 +7,22 @@
     <body>
         <h1>Available properties</h1>
         <table style="width:100%">
-        <thead>
+            {% for property in properties %}
+                <tr>
+                        <td>{{ property['name'] }}</td>
+                        <td>{{ property['propertyType'] }}</td>
+                        <td>{{ property['price'] }}</td>
+                        <td>{{ property['address'] }}</td>
+                     </tr>
+            {% endfor %}
+        <!-- <thead>
             <tr>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Price</th>
                 <th>Address</th>
             </tr>
-        </thead>
+        </thead> -->
         <!-- <tfoot>
             <tr>
                 <th>Name</th>
@@ -23,10 +31,10 @@
                 <th>Address</th>
             </tr>
         </tfoot> -->
-        </table>
-        <script>
+         </table>
+        <!-- <script>
             $(document).ready(function() {
-                $('#example').DataTable( {
+                $('data').DataTable( {
                     "ajax": {
                         
                         "url": "/index", 
@@ -41,6 +49,6 @@
                     ]
                 } );
             } );
-            </script>
+            </script> -->
     </body>
     </html>

@@ -3,6 +3,7 @@ from flask_pymongo import pymongo
 from database import DatabaseConnection
 from password import encrypt, is_password
 from functools import wraps
+from json2html import *
 import datetime
 
 app = Flask(__name__)
@@ -102,25 +103,34 @@ def renterHome():
 def addNewProperty():
     if request.method == "POST":
         document = {
-        "name": session["id"],
-        "propertyType": request.form["type"],
+        "owner": session["id"],
+        "name": request.form["name"],
         "price": request.form["price"],
-        "address": request.form["address"]
+        "address": request.form["address"],
+        "rentedBy": "None"
     }
         db.insert("properties", document)
         flash("Property successfully added")
         return redirect(url_for("renterHome"))
     return render_template("addProperties.html")
 
-@app.route("/updateProperty",methods=["GET"])
-def updateProperty():
-    db.update("properties",{"name":"test"}, {'$set':{"price":"something"}})
-    return Response("successfully changed database", status=200, content_type="text/html")
-
 @app.route("/properties", methods=["GET"])
-def getProperties():
-    properties = db.findMany("properties",{})
-    return jsonify(properties)
+def properties():
+    properties = db.findMany("properties",{"rentedBy":"None"})
+    return json2html.convert(json=properties,table_attributes={"style":"width:100%"}) 
+    # return render_template("properties.html",data=properties)
+
+@app.route("/getProperty", methods=["GET","POST"])
+def getProperty():
+    if request.method =="POST":
+        if db.findOne("properties",{"name":request.form["name"]})["rentedBy"] == "None":
+            db.update("properties",{"name":request.form["name"]}, {'$set':{"rentedBy":session["id"]}})
+            flash("Succefully rented this property")
+            return redirect(url_for("home"))
+        else:
+            flash("This property is already rented")
+            return redirect(url_for("home"))
+    return render_template("getProperty.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",port=4000,debug=True)
