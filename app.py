@@ -125,12 +125,16 @@ def properties():  # all properties that are not rented
 @login_required
 def getProperty():  # rent a property
     if request.method =="POST":
-        if db.findOne("properties",{"name":request.form["name"]})["rentedBy"] == "None":
-            db.update("properties",{"name":request.form["name"]}, {'$set':{"rentedBy":session["id"]}})
-            flash("Succefully rented this property")
-            return redirect(url_for("home"))
+        if db.findOne("properties",{"name":request.form["name"]}):
+            if db.findOne("properties", {"name":request.form["name"]})["rentedBy"] == "None":
+                db.update("properties",{"name":request.form["name"]}, {'$set':{"rentedBy":session["id"]}})
+                flash("Succefully rented " + request.form["name"])
+                return redirect(url_for("home"))
+            else:
+                flash("This property is already rented")
+                return redirect(url_for("home"))
         else:
-            flash("This property is already rented")
+            flash("No property called " + request.form["name"])
             return redirect(url_for("home"))
     return render_template("getProperty.html")
 
