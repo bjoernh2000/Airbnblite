@@ -1,7 +1,7 @@
 README
 =================================
 ## What is Airbnblite
-This small project imitates Airbnb, but just as a lite version. You can signup to be a member to apply for properties, or a renter that rents out their properties. I used Flask sessions to keep track of whether someone is logged in or not. 
+This small project imitates Airbnb, but just as a lite version. You can signup to be a member to apply for properties, or a renter that rents out their properties. I used Flask sessions to keep track of whether someone is logged in or not. HTML is used for the websites under templates, and Mongodb keeps track of properties, users and who is a renter. 
 
 ## Initialization and packages
 Python
